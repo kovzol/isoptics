@@ -7,7 +7,7 @@ This piece code uses [CindyJS](https://cindyjs.org) for visualizing and
 
 # Usage
 
-[Start](https://htmlpreview.github.io/?https://github.com/kovzol/isoptics/blob/master/isoptics.html)
+[Start](http://prover-test.geogebra.org/~kovzol/isoptics/isoptics.html)
 the file [isoptics.html](isoptics.html) in your browser and enter one of the following functions:
 
 * `x^2+2-y`
