@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>Experiments on isoptics by dynamic coloring</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            #CSCanvas {
+                width: 100vw; height: 90vh;
+            }
+            #form {
+                width: 100vw; height: 10vh; text-align: center;
+                background-color: #ffeedd;
+            }
+            #inp { background-color: #f0e0d0 }
+
+        </style>
+
+        <link rel="stylesheet" href="https://cindyjs.org/dist/snapshot/CindyJS.css">
+        <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/Cindy.js"></script>
+        <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/CindyGL.js"></script>
+
+<script type="text/javascript">
+    function compute(inputString) { // compute a Giac command and return the output
+        var caseval = __ggb__giac.cwrap('caseval', 'string', ['string']);
+        try {
+            return caseval(inputString);
+        } catch (err) {
+	    s="0"; // raise an error
+        }
+    }
+</script>
+
+
+    
+      <script id="csdraw" type="text/x-cindyscript">
+
+heavyside(x):=( if (x>=0,1,0));
+xheavyside(x):=( if (x>=0,x,0)); 
+
+f(C) := (
+  cC = complex(C);
+  xC = re(cC);
+  yC = im(cC);
+  so = solvable();
+  valid = false;
+
+  formula = fun(xC,yC);
+
+  if (formula > 0 & so==1,
+
+  BX = sol1(xC,yC);
+  CX = sol2(xC,yC);
+  BY = soly(BX);
+  CY = soly(CX);
+  B = gauss (BX+i*BY);
+  A = gauss (CX+i*CY);
+
+  avX = (CX - xC);
+  avY = (CY - yC);
+  bvX = (BX - xC);
+  bvY = (BY - yC);
+  prodav = avX * bvX + avY * bvY;
+  la = sqrt (avX * avX + avY * avY);
+  lb = sqrt (bvX * bvX + bvY * bvY);
+  cosa = (prodav / (la * lb));
+
+  cangle = arccos(cosa);
+
+  valid = true;
+  levels = 10;
+  cosa=floor(cosa*levels)/levels;
+
+  [xheavyside(re(-cosa)),0,xheavyside(re(cosa))],
+  [so,so,so])
+);
+
+colorplot(f(#));
+
+f(C);
+
+drawtext(C, " C", color->[1,0,0], alpha -> 1);
+
+if (valid,
+
+drawtext(B, "B ", color->[0,0.6,0],align->"right", alpha -> 1);
+drawtext(A, " A", color->[0,0.6,0], alpha -> 1);
+draw(B, color->[0,1,0], alpha -> 0.5);
+draw(A, color->[0,1,0], alpha -> 0.5);
+tan1 = join(C,B);
+tan2 = join(C,A);
+linesize(3);
+draw(tan1, color->[0,1,0], alpha -> 0.5);
+draw(tan2, color->[0,1,0], alpha -> 0.5);
+drawtext(gauss(-i),"∠ACB=" + cangle,color->[1,1,1],align->"center"));
+
+
+      </script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+            scripts: "cs*",
+            angleUnit: "°",
+            exclusive: false,
+            geometry: [
+              {labeled: false, name: "C", type: "Free", pos: [0.009334779332023162, 1, 0.8633876808264246]},
+            ],
+            ports: [
+              {id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}], background: "rgb(168,176,192)"}
+            ],
+            csconsole: false,
+            use: [
+              "CindyGL"
+            ],
+            autoplay: true,
+            behavior: [
+
+            ]
+          });
+
+        var sqrtconv = function(text) {
+            var res = text.replace(/√([0-9]+)/g,"sqrt($1)");
+            res = res.replace("√","sqrt");
+            return res;
+            };
+
+        var updatef = function(fun){
+          s="1";
+          yexpl=compute("solve(" + fun + ",y)[0]");
+          dfx=compute("diff(" + fun + ",x)");
+          dfy=compute("diff(" + fun + ",y)");
+          console.log("yexpl="+yexpl);
+          tp="("+dfx+")*(x-xC)+("+dfy+")*(y-yC)";
+          eq2=compute("subst("+tp+",y,"+yexpl+")");
+          sol="solve("+eq2+",x)";
+          console.log("sol="+sol);
+          solall=compute("size("+sol+")");
+          console.log("solall="+solall);
+          sol1="0";
+          sol2="0";
+          if (solall=="2") {
+           sol1=sqrtconv(compute(sol+"[0]"));
+           sol2=sqrtconv(compute(sol+"[1]"));
+           }
+          else s="0";
+          console.log("sol1="+sol1);
+          console.log("sol2="+sol2);
+          console.log("s="+s);
+          yexplconv=sqrtconv(yexpl);
+          console.log("yexplconv="+yexplconv);
+          cdy.evokeCS('sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := ('+s+'); init();');
+          }
+
+
+        </script>
+    </head>
+    <body>
+        
+
+<script type="text/cindyscript" id="csinit">
+fun(x,y):=(x*x+2-y);
+sol1(xC,yC):=(xC+sqrt(xC*xC-yC+2));
+sol2(xC,yC):=(xC-sqrt(xC*xC-yC+2));
+soly(x):=(x*x+2);
+solvable():=(1);
+
+init():= (
+updatef(fun);
+);
+init();
+</script>
+
+        <div id="CSCanvas"></div>
+
+
+<script type='text/javascript'>
+
+    var __ggb__giac = {
+        preRun: [],
+        postRun: [],
+        printErr: function (text) {
+            if (0) { // XXX disabled for safety typeof dump == 'function') {
+                dump(text + '\n'); // fast, straight to the real console
+            } else {
+                console.log(text);
+            }
+        },
+        setStatus: function (text) {
+            if (__ggb__giac.setStatus.interval) clearInterval(__ggb__giac.setStatus.interval);
+            var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+            if (m) text = m[1];
+            if (text == "")
+                text = "ready";
+            console.log("Giac status = " + text);
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function (left) {
+            this.totalDependencies = Math.max(this.totalDependencies, left);
+            __ggb__giac.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+    };
+    __ggb__giac.setStatus('Downloading...');
+</script>
+<div id="form">
+F(x,y)=<input type="text" id="inp" value="x*x+2-y" 
+onkeypress="if((event.which ? event.which : event.keyCode)==13) {
+updatef(this.value); cdy.evokeCS('fun(x,y) := (' + this.value + '); init();'); }" size="20"
+style="font-size:18px">
+</div>
+
+<script src="giac.js"></script>
+
+
+
+    </body>
+    </html>
+  
