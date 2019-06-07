@@ -2,7 +2,8 @@
 
 Please see http://www.nebrija.es/~pvelez/ACA2019/dana-picard.pdf for an overview.
 
-This piece code uses CindyJS for visualizing and Giac for computing some preliminary calculations.
+This piece code uses [CindyJS](https://cindyjs.org) for visualizing and
+[Giac](https://www-fourier.ujf-grenoble.fr/~parisse/giac.html) for computing some preliminary calculations.
 
 # Usage
 
@@ -17,6 +18,12 @@ points to the input curves. Angles above 90 degrees are colored with blue, above
 degrees with red. Black points correspond to 90 degrees, therefore the orhoptic curve
 of the given input will be shown as a black curve. White points have no meanings
 to be selected for point *C*.
+
+A black screen is shown if the formula cannot be interpreted correctly and therefore there 
+is no way to completely calculate the initial equations in Giac.
+
+A gray screen is shown if there is some internal error during the main computation
+process inside CindyJS.
 
 # Authors
 
