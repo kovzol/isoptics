@@ -12,7 +12,7 @@ the file [isoptics.html](isoptics.html) in your browser and enter one of the fol
 
 * `x^2+2-y`
 * `x^2-x*y+1`
-* `1-x*y`
+* `3-x*y`
 
 Then drag the point *C* and learn the isoptic angles *ACB* where *A* and *B* are tangent
 points to the input curves. Angles above 90 degrees are colored with blue, above 90
@@ -36,6 +36,7 @@ process inside CindyJS.
 * Aaron Montag and the CindyJS Develoment Team for CindyJS and WebGL
 * Bernard Parisse for Giac
 * The GeoGebra Team for providing a JavaScript version of Giac
+* The MathJax Team for math typesetting
 
 # Known bugs
 

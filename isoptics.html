@@ -20,6 +20,7 @@
             height: 10vh;
             text-align: center;
             background-color: #ffeedd;
+            overflow-y: scroll;
         }
 
         #inp {
@@ -32,6 +33,10 @@
     <link rel="stylesheet" href="https://cindyjs.org/dist/snapshot/CindyJS.css">
     <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/Cindy.js"></script>
     <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/CindyGL.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
     <script type="text/javascript">
         function compute(inputString) { // compute a Giac command and return the output
@@ -133,11 +138,20 @@
             return res;
         };
 
+        var tolatex = function (text) {
+            var res = compute("latex(" + text + ")");
+            return res.replace(/"|"$/gm,''); // remove trailing quotes
+        };
+
         var updatef = function (fun) {
             s = "1";
             yexpl = compute("solve(" + fun + ",y)[0]");
-            dfx = compute("diff(" + fun + ",x)");
-            dfy = compute("diff(" + fun + ",y)");
+            dfx = compute("simplify(diff(" + fun + ",x))");
+            dfy = compute("simplify(diff(" + fun + ",y))");
+            var element = document.getElementById("tP");
+            element.innerHTML = "$(" + tolatex(dfx) + ")\\cdot(x-x_C)+(" + tolatex(dfy) + ")\\cdot(y-y_C)=0$.";
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+
             console.log("yexpl=" + yexpl);
             tp = "(" + dfx + ")*(x-xC)+(" + dfy + ")*(y-yC)";
             eq2 = compute("subst(" + tp + ",y," + yexpl + ")");
@@ -211,13 +225,21 @@
     __ggb__giac.setStatus('Downloading...');
 </script>
 <div id="form">
-    <i>F</i>(<i>x</i>,<i>y</i>)=<input type="text" id="inp" value="x*x+2-y"
+    $F(x,y)$=<input type="text" id="inp" value="x*x+2-y"
                   onkeypress="if((event.which ? event.which : event.keyCode)==13) {
-                      updatef(this.value); cdy.evokeCS('fun(x,y) := (' + this.value + '); init();'); }" size="20">=0
+                      updatef(this.value); cdy.evokeCS('fun(x,y) := (' + this.value + '); init();'); }" size="20">$=0$ <br>
+    The equation of a tangent at the point $P(x, y)$ is of form
+    $t_P : F_x'(x,y)\cdot(x-x_C)+F_y'(x,y)\cdot(y-y_C)=0$, that is,
+
+    <div id="tP">
+    $(2x)\cdot(x-x_C)+(-1)\cdot(y-y_C)=0$.
+    </div>
+
 </div>
+
 
 <script src="giac.js"></script>
 
 </body>
 </html>
-  
+
