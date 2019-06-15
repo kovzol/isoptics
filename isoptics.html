@@ -12,12 +12,12 @@
 
         #CSCanvas {
             width: 100vw;
-            height: 90vh;
+            height: 80vh;
         }
 
         #form {
             width: 100vw;
-            height: 10vh;
+            height: 20vh;
             text-align: center;
             background-color: #ffeedd;
             overflow-y: scroll;
@@ -44,7 +44,8 @@
             try {
                 return caseval(inputString);
             } catch (err) {
-                s = "0"; // raise an error
+                disableCindyJSApplet();
+                return "error";
             }
         }
     </script>
@@ -134,43 +135,71 @@
 
         var sqrtconv = function (text) {
             var res = text.replace(/√([0-9]+)/g, "sqrt($1)");
-            res = res.replace("√", "sqrt");
+            res = res.replace(/√/g, "sqrt");
             return res;
         };
 
         var tolatex = function (text) {
             var res = compute("latex(" + text + ")");
-            return res.replace(/"|"$/gm,''); // remove trailing quotes
+            res = res.replace(/xC/g, "x_C");
+            res = res.replace(/yC/g, "y_C");
+            res = res.replace(/"|"$/gm,''); // remove trailing quotes
+            return res.replace(/\\mathrm/g, ""); // remove mathrm mode
         };
+
+        var disableCindyJSApplet = function(text) {
+            cdy.evokeCS('sol1(xC,yC) := (0); sol2(xC,yC) := (0); soly(x) := (0); solvable() := (0); init();');
+            }
+
 
         var updatef = function (fun) {
             s = "1";
             yexpl = compute("solve(" + fun + ",y)[0]");
+            yexplconv = sqrtconv(yexpl);
+            if (yexpl == "error") s="0";
+
             dfx = compute("simplify(diff(" + fun + ",x))");
             dfy = compute("simplify(diff(" + fun + ",y))");
             var element = document.getElementById("tP");
             element.innerHTML = "$(" + tolatex(dfx) + ")\\cdot(x-x_C)+(" + tolatex(dfy) + ")\\cdot(y-y_C)=0$.";
             MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
 
-            console.log("yexpl=" + yexpl);
-            tp = "(" + dfx + ")*(x-xC)+(" + dfy + ")*(y-yC)";
-            eq2 = compute("subst(" + tp + ",y," + yexpl + ")");
-            sol = "solve(" + eq2 + ",x)";
-            console.log("sol=" + sol);
-            solall = compute("size(" + sol + ")");
-            console.log("solall=" + solall);
-            sol1 = "0";
-            sol2 = "0";
-            if (solall == "2") {
-                sol1 = sqrtconv(compute(sol + "[0]"));
-                sol2 = sqrtconv(compute(sol + "[1]"));
-            } else s = "0";
-            console.log("sol1=" + sol1);
-            console.log("sol2=" + sol2);
             console.log("s=" + s);
-            yexplconv = sqrtconv(yexpl);
-            console.log("yexplconv=" + yexplconv);
-            cdy.evokeCS('sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + '); init();');
+
+            if (s == 0 || yexplconv.indexOf("sqrt") != -1) {
+                s = "0";
+                element.innerHTML += "<br>No explicit formula exists in form $y=f(x)$, cannot continue.";
+                MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+                disableCindyJSApplet();
+
+                } else {
+
+                console.log("yexpl=" + yexpl);
+                tp = "(" + dfx + ")*(x-xC)+(" + dfy + ")*(y-yC)";
+                eq2 = compute("subst(" + tp + ",y," + yexpl + ")");
+                sol = "solve(" + eq2 + ",x)";
+                console.log("sol=" + sol);
+                solall = compute("size(" + sol + ")");
+                console.log("solall=" + solall);
+                if (solall == "2") {
+                    sol1 = sqrtconv(compute(sol + "[0]"));
+                    sol2 = sqrtconv(compute(sol + "[1]"));
+                    element.innerHTML += "<br>Solutions for $x_A$ and $x_B$ are $"+tolatex(sol1)+"$ and $"+tolatex(sol2)+"$.";
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+                } else {
+                    s="0";
+                    element.innerHTML += "<br>The number of solutions for $x$ is " +solall + " that is not equal to 2, cannot continue.";
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+                    }
+                console.log("sol1=" + sol1);
+                console.log("sol2=" + sol2);
+                console.log("s=" + s);
+
+                console.log("yexplconv=" + yexplconv);
+                if (s=="1")
+                    cdy.evokeCS('sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + '); init();');
+                else disableCindyJSApplet();
+                }
         }
 
 
