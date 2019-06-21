@@ -35,6 +35,7 @@
     <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/CindyGL.js"></script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+        MathJax.Hub.Register.StartupHook("End",function () { mathjaxLoaded = true; if (typeof giacLoaded !== 'undefined' && giacLoaded) updatef("x*x+2-y"); });
     </script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
@@ -241,8 +242,11 @@
             if (__ggb__giac.setStatus.interval) clearInterval(__ggb__giac.setStatus.interval);
             var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
             if (m) text = m[1];
-            if (text == "")
-                text = "ready";
+            if (text == "") {
+                text = "ready!";
+                giacLoaded = true;
+                if (typeof mathjaxLoaded !== 'undefined' && mathjaxLoaded) updatef("x*x+2-y");
+                }
             console.log("Giac status = " + text);
         },
         totalDependencies: 0,
@@ -261,7 +265,6 @@
     $t_P : F_x'(x,y)\cdot(x-x_C)+F_y'(x,y)\cdot(y-y_C)=0$, that is,
 
     <div id="tP">
-    $(2x)\cdot(x-x_C)+(-1)\cdot(y-y_C)=0$.
     </div>
 
 </div>
