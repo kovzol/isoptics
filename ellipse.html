@@ -64,7 +64,6 @@
         so = solvable();
         valid = false;
         a = inpa();
-        b = inpb();
 
         formula = fun(xC,yC);
 
@@ -209,7 +208,7 @@
                 if (s=="1")
                     cdy.evokeCS('fun(x,y) := (' + fun + '); sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + 
                         '); soly(x) := (' + yexplconv + '); solvable() := (' + s + '); inpa() := (' + inpa +
-                        '); inpb() := (' + inpb + ');');
+                        ');');
                 else disableCindyJSApplet();
                 }
         }
@@ -227,7 +226,6 @@
     soly(x):=(0);
     solvable():=(0);
     inpa() := (0);
-    inpb() := (0);
 </script>
 
 <div id="CSCanvas"></div>
