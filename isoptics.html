@@ -35,7 +35,7 @@
     <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/CindyGL.js"></script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-        MathJax.Hub.Register.StartupHook("End",function () { mathjaxLoaded = true; if (typeof giacLoaded !== 'undefined' && giacLoaded) updatef("x*x+2-y"); });
+        MathJax.Hub.Register.StartupHook("End",function () { mathjaxLoaded = true; if (typeof giacLoaded !== 'undefined' && giacLoaded) updatef(); });
     </script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
@@ -149,11 +149,11 @@
         };
 
         var disableCindyJSApplet = function(text) {
-            cdy.evokeCS('sol1(xC,yC) := (0); sol2(xC,yC) := (0); soly(x) := (0); solvable() := (0); init();');
+            cdy.evokeCS('sol1(xC,yC) := (0); sol2(xC,yC) := (0); soly(x) := (0); solvable() := (0);');
             }
 
-
-        var updatef = function (fun) {
+        var updatef = function () {
+            fun = document.getElementById("inp").value;
             s = "1";
             yexpl = compute("solve(" + fun + ",y)[0]");
             yexplconv = sqrtconv(yexpl);
@@ -198,7 +198,7 @@
 
                 console.log("yexplconv=" + yexplconv);
                 if (s=="1")
-                    cdy.evokeCS('sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + '); init();');
+                    cdy.evokeCS('fun(x,y) := (' + fun + '); sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + ');');
                 else disableCindyJSApplet();
                 }
         }
@@ -210,17 +210,11 @@
 
 
 <script type="text/cindyscript" id="csinit">
-    fun(x,y):=(x*x+2-y);
-    sol1(xC,yC):=(xC+sqrt(xC*xC-yC+2));
-    sol2(xC,yC):=(xC-sqrt(xC*xC-yC+2));
-    soly(x):=(x*x+2);
-    solvable():=(1);
-
-    init():= (
-        updatef(fun);
-        );
-    init();
-
+    fun(x,y):=(0);
+    sol1(xC,yC):=(0);
+    sol2(xC,yC):=(0);
+    soly(x):=(0);
+    solvable():=(0);
 </script>
 
 <div id="CSCanvas"></div>
@@ -245,7 +239,7 @@
             if (text == "") {
                 text = "ready!";
                 giacLoaded = true;
-                if (typeof mathjaxLoaded !== 'undefined' && mathjaxLoaded) updatef("x*x+2-y");
+                if (typeof mathjaxLoaded !== 'undefined' && mathjaxLoaded) updatef();
                 }
             console.log("Giac status = " + text);
         },
@@ -259,11 +253,9 @@
 </script>
 <div id="form">
     $F(x,y)$=<input type="text" id="inp" value="x*x+2-y"
-                  onkeypress="if((event.which ? event.which : event.keyCode)==13) {
-                      updatef(this.value); cdy.evokeCS('fun(x,y) := (' + this.value + '); init();'); }" size="20">$=0$ <br>
+                  onkeypress="if((event.which ? event.which : event.keyCode)==13) { updatef(); }" size="20">$=0$ <br>
     The equation of a tangent at the point $P(x, y)$ is of form
     $t_P : F_x'(x,y)\cdot(x-x_C)+F_y'(x,y)\cdot(y-y_C)=0$, that is,
-
     <div id="tP">
     </div>
 
