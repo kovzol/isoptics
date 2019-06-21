@@ -69,14 +69,14 @@
         if (formula > 0 & so==1,
 
             BX = sol1(xC,yC);
-            CX = sol2(xC,yC);
+            AX = sol2(xC,yC);
             BY = soly(BX);
-            CY = soly(CX);
+            AY = soly(AX);
             B = gauss (BX+i*BY);
-            A = gauss (CX+i*CY);
+            A = gauss (AX+i*AY);
 
-            avX = (CX - xC);
-            avY = (CY - yC);
+            avX = (AX - xC);
+            avY = (AY - yC);
             bvX = (BX - xC);
             bvY = (BY - yC);
             prodav = avX * bvX + avY * bvY;
