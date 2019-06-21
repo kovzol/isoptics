@@ -26,6 +26,9 @@ is no way to completely calculate the initial equations in Giac.
 A gray screen is shown if there is some internal error during the main computation
 process inside CindyJS.
 
+Another experiment is available that provides only the investigation of
+[ellipses](http://prover-test.geogebra.org/~kovzol/isoptics/ellipse.html).
+
 # Authors
 
 * Thierry Dana-Picard <ndp@jct.ac.il>
