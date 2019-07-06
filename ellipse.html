@@ -158,9 +158,13 @@
             cdy.evokeCS('sol1(xC,yC) := (0); sol2(xC,yC) := (0); soly(x) := (0); solvable() := (0);');
             }
 
+        var issquare = function (number) {
+            return Math.sqrt(number) % 1 === 0;
+            }
+
         var updatef = function () {
-            inpa = document.getElementById("inpa").value;
-            inpb = document.getElementById("inpb").value;
+            inpa = parseInt(document.getElementById("inpa").value);
+            inpb = parseInt(document.getElementById("inpb").value);
             fun = "(" + inpa + ")*x^2 + (" + inpb + ")*y^2-1";
             s = "1";
             yexpl = compute("solve(" + fun + ",y)[0]");
@@ -195,12 +199,17 @@
                     sol2 = sqrtconv(compute(sol + "[1]"));
                     nosqrt = (sol1.match(/sqrt/g)||[]).length;
                     console.log("nosqrt=" + nosqrt);
-                    if (nosqrt == 1) {
-                        // swap the values of sol1 and sol2:
-                        var sol_ = sol1;
-                        sol1 = sol2;
-                        sol2 = sol_;
-                        }
+                    // This check is very complicated and maybe still incomplete. TODO: simplify.
+                    if (((nosqrt == 1) && (inpa != inpb)) ||
+                        (issquare(inpb) && !issquare(inpa)) ||
+                        ((inpa == inpb) && issquare(inpa))) {
+                            if (!(issquare(inpa*inpb) && inpa!=inpb && !issquare(inpa) && !issquare(inpb))) {
+                                // swap the values of sol1 and sol2:
+                                var sol_ = sol1;
+                                sol1 = sol2;
+                                sol2 = sol_;
+                                }
+                            }
                     element.innerHTML += "<br>Solutions for $x_A$ and $x_B$ are $"+tolatex(sol1)+"$ and $"+tolatex(sol2)+"$.";
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
                 } else {
