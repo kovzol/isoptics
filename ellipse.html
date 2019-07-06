@@ -193,6 +193,14 @@
                 if (solall == "2") {
                     sol1 = sqrtconv(compute(sol + "[0]"));
                     sol2 = sqrtconv(compute(sol + "[1]"));
+                    nosqrt = (sol1.match(/sqrt/g)||[]).length;
+                    console.log("nosqrt=" + nosqrt);
+                    if (nosqrt == 1) {
+                        // swap the values of sol1 and sol2:
+                        var sol_ = sol1;
+                        sol1 = sol2;
+                        sol2 = sol_;
+                        }
                     element.innerHTML += "<br>Solutions for $x_A$ and $x_B$ are $"+tolatex(sol1)+"$ and $"+tolatex(sol2)+"$.";
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
                 } else {
