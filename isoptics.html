@@ -57,28 +57,28 @@
     heavyside(x):=( if (x>=0,1,0));
     xheavyside(x):=( if (x>=0,x,0));
 
-    f(C) := (
-        cC = complex(C);
-        xC = re(cC);
-        yC = im(cC);
+    f(P) := (
+        cP = complex(P);
+        xP = re(cP);
+        yP = im(cP);
         so = solvable();
         valid = false;
 
-        formula = fun(xC,yC);
+        formula = fun(xP,yP);
 
         if (formula > 0 & so==1,
 
-            BX = sol1(xC,yC);
-            AX = sol2(xC,yC);
+            BX = sol1(xP,yP);
+            AX = sol2(xP,yP);
             BY = soly(BX);
             AY = soly(AX);
             B = gauss (BX+i*BY);
             A = gauss (AX+i*AY);
 
-            avX = (AX - xC);
-            avY = (AY - yC);
-            bvX = (BX - xC);
-            bvY = (BY - yC);
+            avX = (AX - xP);
+            avY = (AY - yP);
+            bvX = (BX - xP);
+            bvY = (BY - yP);
             prodav = avX * bvX + avY * bvY;
             la = sqrt (avX * avX + avY * avY);
             lb = sqrt (bvX * bvX + bvY * bvY);
@@ -96,9 +96,9 @@
 
     colorplot(f(#));
 
-    f(C);
+    f(P);
 
-    drawtext(C, " C", color->[1,0,0], alpha -> 1);
+    drawtext(P, " P", color->[1,0,0], alpha -> 1);
 
     if (valid,
 
@@ -106,12 +106,12 @@
         drawtext(A, " A", color->[0,0.6,0], alpha -> 1);
         draw(B, color->[0,1,0], alpha -> 0.5);
         draw(A, color->[0,1,0], alpha -> 0.5);
-        tan1 = join(C,B);
-        tan2 = join(C,A);
+        tan1 = join(P,B);
+        tan2 = join(P,A);
         linesize(3);
         draw(tan1, color->[0,1,0], alpha -> 0.5);
         draw(tan2, color->[0,1,0], alpha -> 0.5);
-        drawtext(gauss(-i),"∠ACB=" + cangle,color->[1,1,1],align->"center"));
+        drawtext(gauss(-i),"∠APB=" + cangle,color->[1,1,1],align->"center"));
 
     </script>
 
@@ -121,7 +121,7 @@
             angleUnit: "°",
             exclusive: false,
             geometry: [
-                {labeled: false, name: "C", type: "Free", pos: [0.009334779332023162, 1, 0.8633876808264246]},
+                {labeled: false, name: "P", type: "Free", pos: [0.009334779332023162, 1, 0.8633876808264246]},
             ],
             ports: [
                 {id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}], background: "rgb(168,176,192)"}
@@ -142,14 +142,14 @@
 
         var tolatex = function (text) {
             var res = compute("latex(" + text + ")");
-            res = res.replace(/xC/g, "x_C");
-            res = res.replace(/yC/g, "y_C");
+            res = res.replace(/xP/g, "x_P");
+            res = res.replace(/yP/g, "y_P");
             res = res.replace(/"|"$/gm,''); // remove trailing quotes
             return res.replace(/\\mathrm/g, ""); // remove mathrm mode
         };
 
         var disableCindyJSApplet = function(text) {
-            cdy.evokeCS('sol1(xC,yC) := (0); sol2(xC,yC) := (0); soly(x) := (0); solvable() := (0);');
+            cdy.evokeCS('sol1(xP,yP) := (0); sol2(xP,yP) := (0); soly(x) := (0); solvable() := (0);');
             }
 
         var updatef = function () {
@@ -162,7 +162,7 @@
             dfx = compute("simplify(diff(" + fun + ",x))");
             dfy = compute("simplify(diff(" + fun + ",y))");
             var element = document.getElementById("tP");
-            element.innerHTML = "$(" + tolatex(dfx) + ")\\cdot(x-x_C)+(" + tolatex(dfy) + ")\\cdot(y-y_C)=0$.";
+            element.innerHTML = "$(" + tolatex(dfx) + ")\\cdot(x-x_P)+(" + tolatex(dfy) + ")\\cdot(y-y_P)=0$.";
             MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
 
             console.log("s=" + s);
@@ -176,7 +176,7 @@
                 } else {
 
                 console.log("yexpl=" + yexpl);
-                tp = "(" + dfx + ")*(x-xC)+(" + dfy + ")*(y-yC)";
+                tp = "(" + dfx + ")*(x-xP)+(" + dfy + ")*(y-yP)";
                 eq2 = compute("subst(" + tp + ",y," + yexpl + ")");
                 sol = "solve(" + eq2 + ",x)";
                 console.log("sol=" + sol);
@@ -198,7 +198,7 @@
 
                 console.log("yexplconv=" + yexplconv);
                 if (s=="1")
-                    cdy.evokeCS('fun(x,y) := (' + fun + '); sol1(xC,yC) := (' + sol1 + '); sol2(xC,yC) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + ');');
+                    cdy.evokeCS('fun(x,y) := (' + fun + '); sol1(xP,yP) := (' + sol1 + '); sol2(xP,yP) := (' + sol2 + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + ');');
                 else disableCindyJSApplet();
                 }
         }
@@ -211,8 +211,8 @@
 
 <script type="text/cindyscript" id="csinit">
     fun(x,y):=(0);
-    sol1(xC,yC):=(0);
-    sol2(xC,yC):=(0);
+    sol1(xP,yP):=(0);
+    sol2(xP,yP):=(0);
     soly(x):=(0);
     solvable():=(0);
 </script>
@@ -255,7 +255,7 @@
     $F(x,y)$=<input type="text" id="inp" value="x*x+2-y"
                   onkeypress="if((event.which ? event.which : event.keyCode)==13) { updatef(); }" size="20">$=0$ <br>
     The equation of a tangent at the point $P(x, y)$ is of form
-    $t_P : F_x'(x,y)\cdot(x-x_C)+F_y'(x,y)\cdot(y-y_C)=0$, that is,
+    $t_P : F_x'(x,y)\cdot(x-x_P)+F_y'(x,y)\cdot(y-y_P)=0$, that is,
     <div id="tP">
     </div>
 
