@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>Experiments on isoptics by dynamic coloring</title>
+    <style type="text/css">
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSCanvas {
+            width: 100vw;
+            height: 80vh;
+        }
+
+        #form {
+            width: 100vw;
+            height: 20vh;
+            text-align: center;
+            background-color: #ffeedd;
+            overflow-y: scroll;
+        }
+
+        #inp {
+            background-color: #f0e0d0;
+            font-size: 18px;
+        }
+
+    </style>
+
+    <link rel="stylesheet" href="https://cindyjs.org/dist/snapshot/CindyJS.css">
+    <script type="text/javascript" src="Cindy.js"></script>
+    <script type="text/javascript" src="CindyGL.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+        MathJax.Hub.Register.StartupHook("End",function () { mathjaxLoaded = true; if (typeof giacLoaded !== 'undefined' && giacLoaded) updatef(); });
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+    <script type="text/javascript">
+        function compute(inputString) { // compute a Giac command and return the output
+            var caseval = __ggb__giac.cwrap('caseval', 'string', ['string']);
+            try {
+                return caseval(inputString);
+            } catch (err) {
+                disableCindyJSApplet();
+                return "error";
+            }
+        }
+    </script>
+
+
+    <script id="csdraw" type="text/x-cindyscript">
+
+    heavyside(x):=( if (x>=0,1,0));
+    xheavyside(x):=( if (x>=0,x,0));
+
+
+
+    f(P) := (
+
+        cP = complex(P);
+        xP = re(cP);
+        yP = im(cP);
+
+//////////////////////// beginning of Newton's algorithm ////////////////////////
+    
+            x0 = 75;
+            xo = (x0-32768)/1000;
+            steps = 0;
+
+            rootsno = 0;
+            epsilon = 0.0001;
+            finished = false;
+            xn = xo + 1;
+
+            repeat (300, if (!finished,
+                getnextx0 = false;
+                if (abs(xn)<epsilon % abs(xo)<epsilon, // if the old number is near zero or the new number is too big:
+                   getnextx0 = true, // let us consider a new x0
+                   if (abs(xn-xo)<epsilon, // otherwise,
+                       // if the new value of xn is close to the old value xo then we found a root:
+                       if (rootsno == 0, // if this root is the first one, we just store it
+                           root1=xo;
+                           rootsno = 1;
+                           getnextx0 = true,
+                           // otherwise, if there is already a root stored
+                           // maybe it is the same one:
+                           if (abs(xn-root1)<epsilon % abs(xn)<epsilon,
+                                   // yes, try another x0:
+                                   getnextx0 = true,
+                                   // else: no, we found the second root as well
+                                   root2=xo;
+                                   finished=true;
+                                   )
+                           )
+                       )
+                   );
+               xo = xn;
+               if (steps > 19, getnextx0=true);
+               if (getnextx0, x0=mod(75*x0,65536);xo=(x0-4096)/3072; steps = 0);
+
+               xn = xo - (3.0*xo*xo*xo*xo-4.0*xo*xo*xo*xP+yP)/(12.0*xo*xo*xo-12.0*xo*xo*xP);
+
+               steps = steps + 1;
+               )
+            );
+
+
+//////////////////////// end of Newton's algorithm ////////////////////////
+
+
+        so = solvable();
+        valid = false;
+
+        formula = fun(xP,yP);
+
+
+
+        if (formula > 0 & so==1,
+
+            BX = root1;
+            AX = root2;
+            
+            
+            BY = soly(BX);
+            AY = soly(AX);
+            B = gauss (BX+i*BY);
+            A = gauss (AX+i*AY);
+
+            avX = (AX - xP);
+            avY = (AY - yP);
+            bvX = (BX - xP);
+            bvY = (BY - yP);
+            prodav = avX * bvX + avY * bvY;
+            la = sqrt (avX * avX + avY * avY);
+            lb = sqrt (bvX * bvX + bvY * bvY);
+            cosa = (prodav / (la * lb));
+
+            cangle = arccos(cosa);
+
+            valid = true;
+            levels = 10;
+            cosa=floor(cosa*levels)/levels;
+
+            [xheavyside(re(-cosa)),0,xheavyside(re(cosa))],
+            [so,so,so])
+        );
+
+    colorplot(f(#));
+
+    f(P);
+
+    drawtext(P, " P", color->[1,0,0], alpha -> 1);
+
+    if (valid,
+
+        drawtext(B, "B ", color->[0,0.6,0],align->"right", alpha -> 1);
+        drawtext(A, " A", color->[0,0.6,0], alpha -> 1);
+        draw(B, color->[0,1,0], alpha -> 0.5);
+        draw(A, color->[0,1,0], alpha -> 0.5);
+        tan1 = join(P,B);
+        tan2 = join(P,A);
+        linesize(3);
+        draw(tan1, color->[0,1,0], alpha -> 0.5);
+        draw(tan2, color->[0,1,0], alpha -> 0.5);
+        drawtext(gauss(-i),"∠APB=" + cangle,color->[1,1,1],align->"center"));
+
+    </script>
+
+    <script type="text/javascript">
+        var cdy = CindyJS({
+            scripts: "cs*",
+            angleUnit: "°",
+            exclusive: false,
+            geometry: [
+                {labeled: false, name: "P", type: "Free", pos: [0.009334779332023162, 1, 0.8633876808264246]},
+            ],
+            ports: [
+                {id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}], background: "rgb(168,176,192)"}
+            ],
+            csconsole: false,
+            use: [
+                "CindyGL"
+            ],
+            autoplay: true,
+            behavior: []
+        });
+
+
+        var sqrtconv = function (text) {
+            var res = text.replace(/√([0-9]+)/g, "sqrt($1)");
+            res = res.replace(/√/g, "sqrt");
+            return res;
+        };
+
+        var tolatex = function (text) {
+            var res = compute("latex(" + text + ")");
+            res = res.replace(/xP/g, "x_P");
+            res = res.replace(/yP/g, "y_P");
+            res = res.replace(/"|"$/gm,''); // remove trailing quotes
+            return res.replace(/\\mathrm/g, ""); // remove mathrm mode
+        };
+
+        var disableCindyJSApplet = function(text) {
+            cdy.evokeCS('soly(x) := (0); solvable() := (0);');
+            }
+
+        var updatef = function () {
+            fun = document.getElementById("inp").value;
+            s = "1";
+            yexpl = compute("solve(" + fun + ",y)[0]");
+            yexplconv = sqrtconv(yexpl);
+            if (yexpl == "error") s="0";
+
+            dfx = compute("simplify(diff(" + fun + ",x))");
+            dfy = compute("simplify(diff(" + fun + ",y))");
+            var element = document.getElementById("tP");
+            element.innerHTML = "$(" + tolatex(dfx) + ")\\cdot(x-x_P)+(" + tolatex(dfy) + ")\\cdot(y-y_P)=0$.";
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+
+            console.log("s=" + s);
+
+            if (s == 0 || yexplconv.indexOf("sqrt") != -1) {
+                s = "0";
+                element.innerHTML += "<br>No explicit formula exists in form $y=f(x)$, cannot continue.";
+                MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+                disableCindyJSApplet();
+
+                } else {
+
+                console.log("yexpl=" + yexpl);
+                tp = "(" + dfx + ")*(x-xP)+(" + dfy + ")*(y-yP)";
+                eq2 = compute("subst(" + tp + ",y," + yexpl + ")");
+                sol = "solve(" + eq2 + ",x)";
+                console.log("sol=" + sol);
+                solall = compute("size(" + sol + ")");
+                console.log("solall=" + solall);
+                if (solall == "2") {
+                    sol1 = sqrtconv(compute(sol + "[0]"));
+                    sol2 = sqrtconv(compute(sol + "[1]"));
+                    element.innerHTML += "<br>Solutions for $x_A$ and $x_B$ are $"+tolatex(sol1)+"$ and $"+tolatex(sol2)+"$.";
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+                } else {
+                    // s="0";
+                    element.innerHTML += "<br>The number of solutions for $x$ is " +solall + " that is not equal to 2, cannot continue symbolically.";
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+                    }
+                console.log("s=" + s);
+
+                console.log("yexplconv=" + yexplconv);
+                if (s=="1")
+                    cdy.evokeCS('fun(x,y) := (' + fun + '); soly(x) := (' + yexplconv + '); solvable() := (' + s + '); ');
+                else disableCindyJSApplet();
+                }
+        }
+
+
+    </script>
+</head>
+<body>
+
+
+<script type="text/cindyscript" id="csinit">
+    fun(x,y):=(0);
+    soly(x):=(0);
+    solvable():=(0);
+</script>
+
+<div id="CSCanvas"></div>
+
+
+<script type='text/javascript'>
+
+    var __ggb__giac = {
+        preRun: [],
+        postRun: [],
+        printErr: function (text) {
+            if (0) { // XXX disabled for safety typeof dump == 'function') {
+                dump(text + '\n'); // fast, straight to the real console
+            } else {
+                console.log(text);
+            }
+        },
+        setStatus: function (text) {
+            if (__ggb__giac.setStatus.interval) clearInterval(__ggb__giac.setStatus.interval);
+            var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+            if (m) text = m[1];
+            if (text == "") {
+                text = "ready!";
+                giacLoaded = true;
+                if (typeof mathjaxLoaded !== 'undefined' && mathjaxLoaded) updatef();
+                }
+            console.log("Giac status = " + text);
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function (left) {
+            this.totalDependencies = Math.max(this.totalDependencies, left);
+            __ggb__giac.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+    };
+    __ggb__giac.setStatus('Downloading...');
+</script>
+<div id="form">
+    $F(x,y)$=<input type="text" id="inp" value="x^4-y" disabled="true"
+                  onkeypress="if((event.which ? event.which : event.keyCode)==13) { updatef(); }" size="20">$=0$ <br>
+    The equation of a tangent at the point $P(x, y)$ is of form
+    $t_P : F_x'(x,y)\cdot(x-x_P)+F_y'(x,y)\cdot(y-y_P)=0$, that is,
+    <div id="tP">
+    </div>
+
+</div>
+
+
+<script src="giac.js"></script>
+
+</body>
+</html>
+

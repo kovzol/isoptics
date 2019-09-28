@@ -29,6 +29,9 @@ process inside CindyJS.
 Another experiment is available that provides only the investigation of
 [ellipses](http://prover-test.geogebra.org/~kovzol/isoptics/ellipse.html).
 
+Yet another experiment is for the quartic `y=x^4`
+[available](http://prover-test.geogebra.org/~kovzol/isoptics/quartic.html).
+
 # Authors
 
 * Thierry Dana-Picard <ndp@jct.ac.il>
